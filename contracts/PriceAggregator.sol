@@ -17,4 +17,9 @@ contract PriceAggregator {
             ) = AggregatorV3Interface(addr).latestRoundData();
             return price;
         }
+
+        function decimals(address addr) external view returns (uint8) {
+            return AggregatorV3Interface(addr).decimals();
+        }
+
 }
