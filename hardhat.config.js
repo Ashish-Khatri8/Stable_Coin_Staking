@@ -29,6 +29,11 @@ module.exports = {
     ]
   },
   networks: {
+    hardhat: {
+      forking: {
+        url: process.env.RINKEBY_HTTP_INFURA,
+      }
+    },
     rinkeby: {
       url: process.env.RINKEBY_HTTP_INFURA || '',
       accounts: {
