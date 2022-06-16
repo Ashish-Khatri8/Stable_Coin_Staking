@@ -6,25 +6,22 @@
 
 - All contracts are deployed on the rinkeby test network.
 
-```script
-    Contract                                Address
-
-    TransparentUpgradeableProxy             [0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0](https://rinkeby.etherscan.io/address/0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0)
-
-    ProxyAdmin                              [0x4771153A6930f02C47fB6c7fC87Dcf48E033a079](https://rinkeby.etherscan.io/address/0x4771153A6930f02C47fB6c7fC87Dcf48E033a079)
-
-    Staking_Multi_V1                        [0x71b00ae543365E686113F6e013555Fd95e152439](https://rinkeby.etherscan.io/address/0x71b00ae543365E686113F6e013555Fd95e152439)
-    (1st implementation contract)
-
-    BlazeToken                              [0xD077F2c212738aB64A5cE843F7C60328c7428892](https://rinkeby.etherscan.io/address/0xD077F2c212738aB64A5cE843F7C60328c7428892)
-
-    PriceAggregator                         [0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22](https://rinkeby.etherscan.io/address/0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22)
-
-    Dai Token                               [0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa](https://rinkeby.etherscan.io/address/0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa)
-
-    Dai/USD Chainlink price feed            [0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF](https://rinkeby.etherscan.io/address/0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF)
-
-```
+| Contract                                       	|   	| Address                                                                                                                       	|
+|------------------------------------------------	|---	|-------------------------------------------------------------------------------------------------------------------------------	|
+| TransparentUpgradeableProxy                    	|   	| [0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0](https://rinkeby.etherscan.io/address/0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0) 	|
+|                                                	|   	|                                                                                                                               	|
+| ProxyAdmin                                     	|   	| [0x4771153A6930f02C47fB6c7fC87Dcf48E033a079](https://rinkeby.etherscan.io/address/0x4771153A6930f02C47fB6c7fC87Dcf48E033a079) 	|
+|                                                	|   	|                                                                                                                               	|
+| Staking_Multi_V1 (1st implementation contract) 	|   	| [0x71b00ae543365E686113F6e013555Fd95e152439](https://rinkeby.etherscan.io/address/0x71b00ae543365E686113F6e013555Fd95e152439) 	|
+|                                                	|   	|                                                                                                                               	|
+| BlazeToken                                     	|   	| [0xD077F2c212738aB64A5cE843F7C60328c7428892](https://rinkeby.etherscan.io/address/0xD077F2c212738aB64A5cE843F7C60328c7428892) 	|
+|                                                	|   	|                                                                                                                               	|
+| PriceAggregator                                	|   	| [0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22](https://rinkeby.etherscan.io/address/0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22) 	|
+|                                                	|   	|                                                                                                                               	|
+| Dai Token                                      	|   	| [0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa](https://rinkeby.etherscan.io/address/0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa) 	|
+|                                                	|   	|                                                                                                                               	|
+| Dai/USD Chainlink price feed                   	|   	| [0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF](https://rinkeby.etherscan.io/address/0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF) 	|
+|                                                	|   	|                                                                                                                               	|
 
 ---
 
