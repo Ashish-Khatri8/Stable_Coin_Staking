@@ -97,7 +97,7 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
      * @param _priceFeedContractAddress Address of chainlink price feed contract for the token.
      */
     function addTokenSupport(address _tokenAddress, address _priceFeedContractAddress) public {
-        require(msg.sender == admin, "Staking_Multi_V2: Not the admin!");
+        require(msg.sender == admin, "Staking_Multi_V1: Not the admin!");
         supportedTokens.push(_tokenAddress);
         priceFeedContracts.push(_priceFeedContractAddress);
     }
