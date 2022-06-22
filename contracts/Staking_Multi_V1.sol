@@ -58,9 +58,8 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
     /// @dev Struct to store an user's stake.
     struct Stake {
         uint256 stakedAmount;
-        uint256 lastTimeTokensStaked;
         uint256 rewardAmount;
-        uint256 lastTimeRewardsClaimed;
+        uint256 lastTimeRewardsUpdated;
     }
 
     /// @dev Mapping addresses to a mapping of uint8 to Stake, 
@@ -96,7 +95,7 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
      * @param _tokenAddress Address of new token to be supported for staking.
      * @param _priceFeedContractAddress Address of chainlink price feed contract for the token.
      */
-    function addTokenSupport(address _tokenAddress, address _priceFeedContractAddress) public {
+    function addTokenSupport(address _tokenAddress, address _priceFeedContractAddress) external {
         require(msg.sender == admin, "Staking_Multi_V1: Not the admin!");
         supportedTokens.push(_tokenAddress);
         priceFeedContracts.push(_priceFeedContractAddress);
@@ -116,20 +115,20 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
         // Get the user's stake's storage variable.
         Stake storage stake = userStakes[msg.sender][_tokenAddressIndex];
 
-        // Increment the rewardAmount for the previously staked tokens.
-        stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stake.stakedAmount, block.timestamp - stake.lastTimeTokensStaked);
+        // If lastTimeRewardsUpdated is 0, => user had no stake earlier, thus no need to calculate reward tokens.
+        // Thus calculate reward for previously staked tokens only when it is greater than 0.
+        if (stake.lastTimeRewardsUpdated > 0) {
+            stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stake.stakedAmount, block.timestamp - stake.lastTimeRewardsUpdated);
+        }
 
         // Increment the total amount of tokens staked.
         stake.stakedAmount += _amount;
 
-        // Set the lastTimeTokensStaked variable to current time.
-        stake.lastTimeTokensStaked = block.timestamp;
-
-        // If lastTimeRewardsClaimed is 0, => user had no stake earlier, thus set it to current time too.
-        if (stake.lastTimeRewardsClaimed == 0) {
-            stake.lastTimeRewardsClaimed = block.timestamp;
-        }
-
+        // Set the lastTimeRewardsUpdated variable to current time.
+        // Needs to be updated even on the first stake, even though no reward was calculated then,
+        // as it would be used to calculate rewards on next stake.
+        stake.lastTimeRewardsUpdated = block.timestamp;
+        
         // Emit the Tokens_Staked event.
         emit Tokens_Staked(msg.sender, supportedTokens[_tokenAddressIndex], _amount, block.timestamp);
 
@@ -152,40 +151,42 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
             "Staking_Multi_V1: Unstake amount exceeds staked amount."
         );
 
+        require(
+            rewardToken.balanceOf(address(this)) >= userStakes[msg.sender][_tokenAddressIndex].rewardAmount,
+            "Staking_Multi_V1: Contract does not have sufficient reward tokens. Please try again later."
+        );
+
         // Get the user's stake's storage variable.
         Stake storage stake = userStakes[msg.sender][_tokenAddressIndex];
 
-        // First, increment the rewardAmount in reference to the time when rewardTokens were last claimed.
-        stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, _unstakeAmount, block.timestamp - stake.lastTimeRewardsClaimed);
+        // First, increment the rewardAmount in reference to the time when rewardTokens were last updated.
+        stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stake.stakedAmount, block.timestamp - stake.lastTimeRewardsUpdated);
         
-        // Then, get the amount of reward tokens to send to user depending upon the _unstakeAmount.
-        uint256 rewardTokensToSend = (_unstakeAmount * stake.rewardAmount) / stake.stakedAmount;
-
         // Decrease the stakedAmount by the amount of unstaked tokens.
         stake.stakedAmount -= _unstakeAmount;
 
-        // Decrease the rewardAmount by the number of tokens that are being sent to user as reward.
-        stake.rewardAmount -= rewardTokensToSend;
+        // Store the amount of reward tokens in a local variable.
+        uint256 rewardTokensToSend = stake.rewardAmount;
+        // Set rewardAmount to 0, as we will be sending all the reward accumulated so far to the user.
+        stake.rewardAmount = 0;
 
         if (stake.stakedAmount == 0) {
-            // Set the lastTimeRewardsClaimed and lastTimeTokensStaked, both to 0,
-            // if user has unstaked all of their staked tokens.
-            stake.lastTimeRewardsClaimed = 0;
-            stake.lastTimeTokensStaked = 0;
+            // Set lastTimeRewardsUpdated to 0, if user has unstaked all of their staked tokens.
+            stake.lastTimeRewardsUpdated = 0;
         } else {
-            // Else, Set the lastTimeRewardsClaimed to current time.
-            stake.lastTimeRewardsClaimed = block.timestamp;
+            // Else, set it to current time.
+            stake.lastTimeRewardsUpdated = block.timestamp;
         }
             
         // Emit the Tokens_UnStaked event.
         emit Tokens_UnStaked(msg.sender, supportedTokens[_tokenAddressIndex], _unstakeAmount, block.timestamp);
         // Transfer the tokens to the user.
-        IERC20Upgradeable(supportedTokens[_tokenAddressIndex]).transfer(msg.sender, _unstakeAmount);
+        IERC20Upgradeable(supportedTokens[_tokenAddressIndex]).safeTransfer(msg.sender, _unstakeAmount);
 
         // Emit the RewardTokensSent event.
         emit RewardTokensSent(msg.sender, rewardTokensToSend);
         // Transfer the rewardTokens => BlazeToken to the user.
-        rewardToken.transfer(msg.sender, rewardTokensToSend);
+        rewardToken.safeTransfer(msg.sender, rewardTokensToSend);
     }
 
 
@@ -219,7 +220,7 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
      */
     function _getInterestRate(uint8 _tokenAddressIndex, uint256 _timeElapsed) internal view returns(uint8) {
         if (_timeElapsed < 31 days)
-            return 0;
+            return 3 + _getPerks(_tokenAddressIndex);
         else if (_timeElapsed < 183 days)
             return 5 + _getPerks(_tokenAddressIndex);
         else if (_timeElapsed < 365 days)
