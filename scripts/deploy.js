@@ -1,14 +1,18 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-    const [owner, addr1, addr2, addr3] = await ethers.getSigners();
+    const [owner] = await ethers.getSigners();
 
     const Dai_Token_Contract = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
     const Dai_Price_Feed = "0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF";
 
     // Deploy the BlazeToken contract.
     const BlazeToken = await ethers.getContractFactory("BlazeToken");
-    const blazeToken = await BlazeToken.deploy();
+    const blazeToken = await upgrades.deployProxy(
+        BlazeToken,
+        [],
+        {initializer: "initialize"}
+    );
     await blazeToken.deployed();
     console.log("BlazeToken contract deployed at: ", blazeToken.address);
 
@@ -23,7 +27,6 @@ async function main() {
     const staking_Multi_V1 = await upgrades.deployProxy(
         Staking_Multi_V1,
         [
-            owner.address,
             blazeToken.address,
             priceAggregator.address,
             [Dai_Token_Contract],
@@ -37,7 +40,7 @@ async function main() {
 
     // Mint BlazeTokens to the Staking contract.
     await blazeToken.mint(staking_Multi_V1.address, ethers.utils.parseUnits("10", 7));
-    console.log("Minted 100 million blaze tokens to the staking contract.");
+    console.log("Minted blaze tokens to the staking contract.");
 
 }
 
