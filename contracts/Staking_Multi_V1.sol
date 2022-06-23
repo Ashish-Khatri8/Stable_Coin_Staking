@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "./PriceAggregator.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -11,10 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20Metadat
 
 /// @title Staking_Multi_V1
 /// @author Ashish Khatri
-contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
-
-    /// @dev Admin address.
-    address private admin;
+contract Staking_Multi_V1 is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     
     using SafeERC20Upgradeable for IERC20Upgradeable;
     /// @dev ERC20 reward token => BlazeToken.
@@ -38,6 +36,7 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
     /// @dev Event to emit when Reward tokens are sent to an address on unstaking tokens.
     event RewardTokensSent(address indexed to, uint256 indexed amount);
 
+
     /**
      * @dev Checks whether address has enough tokens to stake and is trying to stake a supported token.
      * @param _tokenAddressIndex Index of token address in supportedTokens array user is trying to stake.
@@ -51,6 +50,28 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
         require(
             IERC20Upgradeable(supportedTokens[_tokenAddressIndex]).balanceOf(msg.sender) >= _amount,
             "Staking_Multi_V1: Insufficient token balance."
+        );
+        _;
+    }
+
+
+    /**
+     * @dev Check whether the token being added by owner is already supported for staking.
+     * @param _tokenAddress Address of ERC20 token that owner wants to add for staking.
+     */
+    modifier tokenAdditionValidation(address _tokenAddress) {
+        bool tokenExists;
+        
+        for (uint i; i < supportedTokens.length; i++) {
+            if (supportedTokens[i] == _tokenAddress) {
+                tokenExists = true;
+                break;
+            }
+        }
+
+        require(
+            tokenExists == false,
+            "Staking_Multi_V1: Token already supported for staking!"
         );
         _;
     }
@@ -75,14 +96,13 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
      * @param _priceFeedContracts An array of addresses containing addresses of data feed contracts for all supported Token/USD pairs.
      */
     function initialize(
-        address _adminAddress,
         address _rewardTokenAddress, 
         address _priceAggregatorAddress,
         address[] memory _supportedTokens,
         address[] memory _priceFeedContracts
     ) public initializer {
         require(_rewardTokenAddress != address(0), "Null address cannot be reward token.");
-        admin = _adminAddress;
+        __Ownable_init();
         rewardToken = IERC20Upgradeable(_rewardTokenAddress);
         priceAggregator = PriceAggregator(_priceAggregatorAddress);
         supportedTokens = _supportedTokens;
@@ -95,8 +115,10 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable {
      * @param _tokenAddress Address of new token to be supported for staking.
      * @param _priceFeedContractAddress Address of chainlink price feed contract for the token.
      */
-    function addTokenSupport(address _tokenAddress, address _priceFeedContractAddress) external {
-        require(msg.sender == admin, "Staking_Multi_V1: Not the admin!");
+    function addTokenSupport(
+        address _tokenAddress, 
+        address _priceFeedContractAddress
+    ) external onlyOwner tokenAdditionValidation(_tokenAddress) {
         supportedTokens.push(_tokenAddress);
         priceFeedContracts.push(_priceFeedContractAddress);
     }
