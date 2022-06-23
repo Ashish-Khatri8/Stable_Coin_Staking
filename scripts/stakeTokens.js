@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 async function main() {
     const [owner, addr1] = await ethers.getSigners();
 
-    const STAKING_MULTI_V1_PROXY_ADDRESS = "";
+    const STAKING_MULTI_V1_PROXY_ADDRESS = "0x35E901deCf363Fd7C5c14cFE5A2DB2EC2DdFb39c";
 
     // Get the upgradable Staking_Multi_V1 contract.
     const Staking_Multi_V1 = await ethers.getContractFactory("Staking_Multi_V1");
@@ -20,8 +20,6 @@ async function main() {
     await staking_Multi_V1.connect(addr1).stakeTokens(0, 1000000);
     console.log("Staked 1000000 dai tokenBits.");
 
-    // Check whether tokens staked or not.
-    console.log(await staking_Multi_V1.totalTokensStaked(addr1.address, 0));
 }
 
 main()
