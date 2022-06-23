@@ -12,7 +12,11 @@ describe("BlazeToken", () => {
     beforeEach(async () => {
         [owner, address1] = await ethers.getSigners();
         BlazeToken = await ethers.getContractFactory("BlazeToken");
-        blazeToken = await BlazeToken.deploy();
+        blazeToken = await upgrades.deployProxy(
+            BlazeToken,
+            [],
+            {initializer: "initialize"}
+        );
         await blazeToken.deployed();
     });
 
