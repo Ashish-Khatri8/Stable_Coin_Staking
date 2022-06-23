@@ -137,10 +137,14 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         // Get the user's stake's storage variable.
         Stake storage stake = userStakes[msg.sender][_tokenAddressIndex];
 
+        // Storing stakedAmount and lastTimeRewardsUpdated in local variables.
+        uint256 stakedAmount = stake.stakedAmount;
+        uint256 lastTimeRewardsUpdated = stake.lastTimeRewardsUpdated;
+
         // If lastTimeRewardsUpdated is 0, => user had no stake earlier, thus no need to calculate reward tokens.
         // Thus calculate reward for previously staked tokens only when it is greater than 0.
-        if (stake.lastTimeRewardsUpdated > 0) {
-            stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stake.stakedAmount, block.timestamp - stake.lastTimeRewardsUpdated);
+        if (lastTimeRewardsUpdated > 0) {
+            stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stakedAmount, block.timestamp - lastTimeRewardsUpdated);
         }
 
         // Increment the total amount of tokens staked.
@@ -167,19 +171,19 @@ contract Staking_Multi_V1 is ReentrancyGuardUpgradeable, OwnableUpgradeable {
      * @param _unstakeAmount Amount of tokens to unstake.
      */
     function unstakeTokens(uint8 _tokenAddressIndex, uint256 _unstakeAmount) public nonReentrant {
+        // Get the user's stake's storage variable.
+        Stake storage stake = userStakes[msg.sender][_tokenAddressIndex];
+        
         // Check whether user is not trying to unstake more tokens than they have staked.
         require(
-            userStakes[msg.sender][_tokenAddressIndex].stakedAmount >= _unstakeAmount,
+            stake.stakedAmount >= _unstakeAmount,
             "Staking_Multi_V1: Unstake amount exceeds staked amount."
         );
 
         require(
-            rewardToken.balanceOf(address(this)) >= userStakes[msg.sender][_tokenAddressIndex].rewardAmount,
+            rewardToken.balanceOf(address(this)) >= stake.rewardAmount,
             "Staking_Multi_V1: Contract does not have sufficient reward tokens. Please try again later."
         );
-
-        // Get the user's stake's storage variable.
-        Stake storage stake = userStakes[msg.sender][_tokenAddressIndex];
 
         // First, increment the rewardAmount in reference to the time when rewardTokens were last updated.
         stake.rewardAmount += _calculateRewardTokens(_tokenAddressIndex, stake.stakedAmount, block.timestamp - stake.lastTimeRewardsUpdated);
