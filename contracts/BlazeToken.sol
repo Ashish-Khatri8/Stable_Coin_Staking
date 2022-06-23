@@ -9,7 +9,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract BlazeToken is ERC20Upgradeable, OwnableUpgradeable {
 
     event BlazeTokensMinted(address indexed to, uint256 indexed amount);
+    
     function initialize() public initializer {
+        __Ownable_init();
         __ERC20_init("BlazeToken", "BLZ");
     }
 
