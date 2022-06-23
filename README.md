@@ -6,23 +6,24 @@
 
 - All contracts are deployed on the rinkeby test network.
 
-| Contract                                       	|   	| Address                                                                                                                       	|
-|------------------------------------------------	|---	|-------------------------------------------------------------------------------------------------------------------------------	|
-| TransparentUpgradeableProxy                    	|   	| [0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0](https://rinkeby.etherscan.io/address/0x52e21C8a89F67C1c4F861719a8eAA54aA1306ca0) 	|
-|                                                	|   	|                                                                                                                               	|
-| ProxyAdmin                                     	|   	| [0x4771153A6930f02C47fB6c7fC87Dcf48E033a079](https://rinkeby.etherscan.io/address/0x4771153A6930f02C47fB6c7fC87Dcf48E033a079) 	|
-|                                                	|   	|                                                                                                                               	|
-| Staking_Multi_V1 (1st implementation contract) 	|   	| [0x71b00ae543365E686113F6e013555Fd95e152439](https://rinkeby.etherscan.io/address/0x71b00ae543365E686113F6e013555Fd95e152439) 	|
-|                                                	|   	|                                                                                                                               	|
-| BlazeToken                                     	|   	| [0xD077F2c212738aB64A5cE843F7C60328c7428892](https://rinkeby.etherscan.io/address/0xD077F2c212738aB64A5cE843F7C60328c7428892) 	|
-|                                                	|   	|                                                                                                                               	|
-| PriceAggregator                                	|   	| [0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22](https://rinkeby.etherscan.io/address/0xd371E06BF1cc56B95801F04a22a7A95A58d9Ff22) 	|
-|                                                	|   	|                                                                                                                               	|
-| Dai Token                                      	|   	| [0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa](https://rinkeby.etherscan.io/address/0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa) 	|
-|                                                	|   	|                                                                                                                               	|
-| Dai/USD Chainlink price feed                   	|   	| [0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF](https://rinkeby.etherscan.io/address/0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF) 	|
-|                                                	|   	|                                                                                                                               	|
-
+| Contract                                        	|   	| Address                                                                                                                           	|
+|-------------------------------------------------	|---	|-----------------------------------------------------------------------------------------------------------------------------------	|
+| TransparentUpgradeableProxy BlazeToken Contract 	|   	| [0x9c88ab615084f2f703698104eda5ba9ed1e099fb](https://rinkeby.etherscan.io/address/0x9c88ab615084f2f703698104eda5ba9ed1e099fb)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| TransparentUpgradeableProxy Staking Contract    	|   	| [<br>0x35E901deCf363Fd7C5c14cFE5A2DB2EC2DdFb39c](https://rinkeby.etherscan.io/address/0x35E901deCf363Fd7C5c14cFE5A2DB2EC2DdFb39c) 	|
+|                                                 	|   	|                                                                                                                                   	|
+| ProxyAdmin                                      	|   	| [0xd47674c50cBe294849CD92084194a22cD1637101](https://rinkeby.etherscan.io/address/0xd47674c50cBe294849CD92084194a22cD1637101)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| Staking_Multi_V1 (1st implementation contract)  	|   	| [0x027ebbeB53775cE1410a5E20233e084aB733f97a](https://rinkeby.etherscan.io/address/0x027ebbeB53775cE1410a5E20233e084aB733f97a)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| BlazeToken (Implementation contract)            	|   	| [0xf97Cadc99f7449888e5407c724309950ffD891Ca](https://rinkeby.etherscan.io/address/0xf97Cadc99f7449888e5407c724309950ffD891Ca)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| PriceAggregator                                 	|   	| [0xF7f40Fc39763a7e8B88FbBb770Cf414a1aAF47ca](https://rinkeby.etherscan.io/address/0xF7f40Fc39763a7e8B88FbBb770Cf414a1aAF47ca)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| Dai Token                                       	|   	| [0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa](https://rinkeby.etherscan.io/address/0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa)     	|
+|                                                 	|   	|                                                                                                                                   	|
+| Dai/USD Chainlink price feed                    	|   	| [0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF](https://rinkeby.etherscan.io/address/0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF)     	|
+|                                                 	|   	|                                                                                                                                   	|
 ---
 
 ## Contract: BlazeToken.sol
@@ -58,7 +59,7 @@ It takes the tokenAddressIndex(of supportedTokens array) and amount of tokens to
 ```script
     Time                       Interest Rate (APR)
 
-    Less than 1 month          0%
+    Less than 1 month          3%
     Between 1 and 6 months     5%
     Between 6 and 12 months    10%
     After 12 months            15%
@@ -74,22 +75,6 @@ It takes the tokenAddressIndex(of supportedTokens array) and amount of tokens to
     Between $500 and $1000     5%
     Greater than $1000         10%
 ```
-
-- Formula to calculate how much tokens to send as reward:
-
-```script
-=> ((interestRate + perks) * stakedAmount * stakedTime) / (100 * 365 days)
-```
-
----
-
-## Contract: Staking_Multi_V2.sol
-
-- This contract is the version 2 of staking implementation contract.
-
-- It added the function **addTokenSupport()** which can only be called by the contract admin for adding staking support for another ERC20 token.
-
-- This function takes 2 arguments: the address of the ERC20 contract and the address of chainlink price feed contract of that token.
 
 ---
 ---
